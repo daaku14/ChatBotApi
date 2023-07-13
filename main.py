@@ -4,7 +4,7 @@ import pandas as pd
 import os 
 from io import StringIO
 from streamlit_chat import message
-from langchain.document_loaders import PyPDFLoader
+from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.llms import OpenAI
@@ -34,7 +34,6 @@ st.title("Welcome in world of AI....")
 if 'generated' not in st.session_state:
     st.session_state['generated'] = ["I'm Your's buddy, How may I help you?"]
 
-
 if 'past' not in st.session_state:
     st.session_state['past'] = ['Hi!']
 
@@ -46,10 +45,12 @@ response_container = st.container()
 # We will get the user's input by calling the get_text function
 def get_text():
     input_text = st.text_input("You: ", "", key="input")
+    st.button('Ask me.')
    # input_text = st.file_uploader("Choose a CSV file", type='csv')
     #query = 'summarise the document in bullet point'
     return input_text
     
+
 
 ## Applying the user input box
 with input_container:
@@ -59,18 +60,18 @@ with input_container:
 def generate_response(prompt):
     documents = []
     # os.chdir(r"C:\Users\Tejas\Downloads\openai-lab\openai-lab\documents")
-    docs = r"C:\Users\Kartikeya Mishra\Downloads\Gaurav\Hackathon\Documents"
+    docs = r"C:\Users\Kartikeya Mishra\Downloads\Gaurav\Hackathon\ChatBotApi\Documents\\"
     for file in os.listdir(docs):
         if file.endswith(".pdf"):
-            pdf_path = r"C:\Users\Kartikeya Mishra\Downloads\Gaurav\Hackathon\Documents\\" + file
-            loader = PyPDFLoader(pdf_path)
+            pdf_path = r"C:\Users\Kartikeya Mishra\Downloads\Gaurav\Hackathon\ChatBotApi\Documents\\" + file
+            loader = PyPDFDirectoryLoader(pdf_path)
             documents.extend(loader.load())
         elif file.endswith('.docx') or file.endswith('.doc'):
-            doc_path = r"C:\Users\Kartikeya Mishra\Downloads\Gaurav\Hackathon\Documents\\" + file
+            doc_path = r"C:\Users\Kartikeya Mishra\Downloads\Gaurav\Hackathon\ChatBotApi\Documents\\" + file
             loader = Docx2txtLoader(doc_path)
             documents.extend(loader.load())
         elif file.endswith('.txt'):
-            text_path = r"C:\Users\Kartikeya Mishra\Downloads\Gaurav\Hackathon\Documents\\" + file
+            text_path = r"C:\Users\Kartikeya Mishra\Downloads\Gaurav\Hackathon\ChatBotApi\Documents\\" + file
             loader = TextLoader(text_path)
             documents.extend(loader.load())
 
@@ -91,7 +92,7 @@ def generate_response(prompt):
  
     response = chain.run(input_documents=documents, question=prompt,return_only_outputs=True)
     index = response.index('Question') if 'Question' in response else -1
-    print(response)
+    #print(response)
     #print(response[0:response.index('Question')])
     # if(index!=-1):
     #     return response[0:response.index('Question')]
@@ -99,6 +100,7 @@ def generate_response(prompt):
     #     return response
 
     return response[0:response.index('\n')]
+    #return response
         
 
     
@@ -107,6 +109,7 @@ with response_container:
         response = generate_response(user_input)
         st.session_state.past.append(user_input)
         st.session_state.generated.append(response)
+       
 
     if st.session_state['generated']:
         for i in range(len(st.session_state['generated'])):
