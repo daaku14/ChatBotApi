@@ -24,8 +24,18 @@ os.environ["OPENAI_API_BASE"] = "https://dbhackathonai6-openai.openai.azure.com/
 os.environ["OPENAI_API_KEY"] = "c59d9e19c07942889de26abe78a02e09"
 
 
+hide_default_format = """
+       <style>
+       #MainMenu {visibility: hidden; }
+       footer {visibility: hidden;}
+       </style>
+       """
+
+
 #openai.api_key = st.secrets['api_key']
 
+st.set_page_config(page_title="Ask Anything App")
+st.markdown(hide_default_format, unsafe_allow_html=True)
 #Creating the chatbot interface
 st.title("Welcome in world of AI....")
 
@@ -35,11 +45,12 @@ if 'generated' not in st.session_state:
     st.session_state['generated'] = ["I'm Your's buddy, How may I help you?"]
 
 if 'past' not in st.session_state:
-    st.session_state['past'] = ['Hi!']
+    st.session_state['past'] = ['Hi Start asking..']
 
 input_container = st.container()
 colored_header(label='', description='', color_name='blue-30')
 response_container = st.container()
+
 
     
 # We will get the user's input by calling the get_text function
@@ -101,7 +112,13 @@ def generate_response(prompt):
 
     return response[0:response.index('\n')]
     #return response
-        
+
+
+with st.sidebar:
+    add_radio = st.radio(
+        "AskGPT...",
+        ("Standard (5-15 days)", "Express (2-5 days)")
+    )
 
     
 with response_container:
@@ -115,3 +132,5 @@ with response_container:
         for i in range(len(st.session_state['generated'])):
             message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')
             message(st.session_state['generated'][i], key=str(i))
+
+
